@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agendar cita | JMbarber</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="shell">
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="booking.html" aria-label="JMbarber">
+        <span class="brand-mark">
+          <img src="ChatGPT Image 10 jun 2026, 03_23_02.png" alt="Logo JMbarber">
+        </span>
+        <div>
+          JMbarber
+          <span>Corte profesional - $16.000</span>
+        </div>
+      </a>
+      <a class="btn secondary" href="loguin.html">Cambiar usuario</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">JMbarber studio</p>
+        <p>Reserva tu hora en segundos. Atencion de 7:00 a.m. a 9:00 p.m., un solo barbero y un servicio directo: corte profesional por $16.000.</p>
+        <div class="stat-grid">
+          <div class="stat"><strong>1 servicio</strong><span class="muted small">Corte</span></div>
+          <div class="stat"><strong>$16.000</strong><span class="muted small">Precio fijo</span></div>
+          <div class="stat"><strong>7am-9pm</strong><span class="muted small">Horario</span></div>
+        </div>
+      </div>
+
+      <aside class="hero-visual" aria-label="JMbarber studio">
+        <img src="ChatGPT Image 10 jun 2026, 03_23_02.png" alt="Logo JMbarber en pared de estudio">
+        <div class="price-panel card">
+          <div>
+            <p class="eyebrow">Servicio principal</p>
+            <h2>Corte</h2>
+            <div class="price">
+              <strong>$16k</strong>
+              <span class="muted">COP</span>
+            </div>
+          </div>
+          <a class="btn full" href="#agenda">Agendar cita</a>
+        </div>
+      </aside>
+    </section>
+
+    <section id="agenda" class="booking-layout">
+      <article class="section card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Reserva</p>
+            <h2>Elige fecha y hora</h2>
+          </div>
+          <span class="pill">$16.000</span>
+        </div>
+
+        <form id="bookingForm" class="form">
+          <div class="booking-grid">
+            <label for="clientName">Nombre completo
+              <input id="clientName" type="text" autocomplete="name" placeholder="Tu nombre" required>
+            </label>
+
+            <label for="clientPhone">Numero de celular
+              <input id="clientPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="3001234567" required>
+            </label>
+
+            <label for="date" class="wide">Fecha
+              <input id="date" type="date" required>
+            </label>
+          </div>
+
+          <div>
+            <label>Horario disponible</label>
+            <div id="slots" class="slots" aria-live="polite"></div>
+            <input id="time" type="hidden" required>
+          </div>
+
+          <button class="btn full" type="submit">Confirmar cita</button>
+        </form>
+      </article>
+
+      <aside class="section card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Resumen</p>
+            <h2>Tu cita</h2>
+          </div>
+        </div>
+        <ul class="summary-list">
+          <li><span class="muted">Servicio</span><strong>Corte</strong></li>
+          <li><span class="muted">Precio</span><strong>$16.000</strong></li>
+          <li><span class="muted">Hora</span><strong id="selectedSummary">Sin seleccionar</strong></li>
+        </ul>
+        <div class="notice">
+          <strong>Privacidad</strong>
+          <p class="muted small">Solo el barbero puede ver la agenda completa. Aqui solo eliges tu horario disponible.</p>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="booking.js"></script>
+</body>
+</html>
