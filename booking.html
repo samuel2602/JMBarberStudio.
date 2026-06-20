@@ -18,35 +18,44 @@
           <span>Corte profesional - $16.000</span>
         </div>
       </a>
-      <a class="btn secondary" href="loguin.html">Cambiar usuario</a>
+      <div class="nav-actions">
+        <button class="btn secondary" type="button" id="aboutBtn">Sobre nosotros</button>
+        <a class="btn secondary" href="loguin.html">Cambiar usuario</a>
+      </div>
     </div>
   </header>
+
+  <div id="pendingBanner" class="alert-banner hidden" role="status">
+    <strong>Cuenta en revision</strong>
+    <p>Tu registro aun no ha sido verificado por el barbero. Puedes agendar citas mientras tanto.</p>
+  </div>
+
+  <div id="vipBanner" class="alert-banner vip-banner hidden" role="status">
+    <strong>Cliente VIP</strong>
+    <p id="vipBannerText">Tienes horarios fijos reservados. Puedes reagendar un dia puntual si no puedes asistir.</p>
+  </div>
+
+  <div id="upcomingBanner" class="alert-banner upcoming-banner hidden" role="status">
+    <strong>Tus proximas citas</strong>
+    <ul id="upcomingList" class="upcoming-list"></ul>
+  </div>
+
+  <div id="reminderBanner" class="alert-banner reminder-banner hidden" role="status">
+    <strong>Recordatorio</strong>
+    <p></p>
+  </div>
 
   <main class="container">
     <section class="hero">
       <div class="hero-copy">
         <p class="eyebrow">JMbarber studio</p>
-        <p>Reserva tu hora en segundos. Atencion de 7:00 a.m. a 9:00 p.m., un solo barbero y un servicio directo: corte profesional por $16.000.</p>
-        <div class="stat-grid">
-          <div class="stat"><strong>1 servicio</strong><span class="muted small">Corte</span></div>
-          <div class="stat"><strong>$16.000</strong><span class="muted small">Precio fijo</span></div>
-          <div class="stat"><strong>7am-9pm</strong><span class="muted small">Horario</span></div>
-        </div>
+        <h1>Agenda tu corte con estilo.</h1>
+        <p>Reserva tu hora en los proximos 7 dias. Atencion organizada, trato profesional y una experiencia limpia desde que eliges el horario.</p>
+        <a class="btn hero-cta" href="#agenda">Agendar cita</a>
       </div>
 
       <aside class="hero-visual" aria-label="JMbarber studio">
         <img src="ChatGPT Image 10 jun 2026, 03_23_02.png" alt="Logo JMbarber en pared de estudio">
-        <div class="price-panel card">
-          <div>
-            <p class="eyebrow">Servicio principal</p>
-            <h2>Corte</h2>
-            <div class="price">
-              <strong>$16k</strong>
-              <span class="muted">COP</span>
-            </div>
-          </div>
-          <a class="btn full" href="#agenda">Agendar cita</a>
-        </div>
       </aside>
     </section>
 
@@ -55,34 +64,41 @@
         <div class="section-head">
           <div>
             <p class="eyebrow">Reserva</p>
-            <h2>Elige fecha y hora</h2>
+            <h2>Elige un dia en el calendario</h2>
           </div>
-          <span class="pill">$16.000</span>
+          <span class="pill" id="bookingQuotaPill">0/2 citas</span>
         </div>
 
-        <form id="bookingForm" class="form">
-          <div class="booking-grid">
-            <label for="clientName">Nombre completo
-              <input id="clientName" type="text" autocomplete="name" placeholder="Tu nombre" required>
-            </label>
+        <div class="client-info" aria-label="Tus datos">
+          <div class="client-info-item">
+            <span class="muted small">Nombre</span>
+            <strong id="clientNameDisplay">-</strong>
+          </div>
+          <div class="client-info-item">
+            <span class="muted small">Celular</span>
+            <strong id="clientPhoneDisplay">-</strong>
+          </div>
+        </div>
 
-            <label for="clientPhone">Numero de celular
-              <input id="clientPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="3001234567" required>
-            </label>
+        <p class="muted small window-note">Solo puedes reservar entre hoy y los proximos 7 dias.</p>
 
-            <label for="date" class="wide">Fecha
-              <input id="date" type="date" required>
-            </label>
+        <section class="calendar-card client-calendar">
+          <div class="calendar-toolbar">
+            <div>
+              <p class="eyebrow">Calendario</p>
+              <h3 id="monthTitle">Mes</h3>
+            </div>
+            <div class="calendar-actions">
+              <button class="icon-btn" type="button" id="prevMonth" aria-label="Mes anterior">&lt;</button>
+              <button class="icon-btn" type="button" id="nextMonth" aria-label="Mes siguiente">&gt;</button>
+            </div>
           </div>
 
-          <div>
-            <label>Horario disponible</label>
-            <div id="slots" class="slots" aria-live="polite"></div>
-            <input id="time" type="hidden" required>
+          <div class="weekdays" aria-hidden="true">
+            <span>Dom</span><span>Lun</span><span>Mar</span><span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span>
           </div>
-
-          <button class="btn full" type="submit">Confirmar cita</button>
-        </form>
+          <div id="calendarGrid" class="calendar-grid"></div>
+        </section>
       </article>
 
       <aside class="section card">
@@ -95,19 +111,137 @@
         <ul class="summary-list">
           <li><span class="muted">Servicio</span><strong>Corte</strong></li>
           <li><span class="muted">Precio</span><strong>$16.000</strong></li>
-          <li><span class="muted">Hora</span><strong id="selectedSummary">Sin seleccionar</strong></li>
+          <li><span class="muted">Fecha</span><strong id="selectedDateSummary">Sin seleccionar</strong></li>
+          <li><span class="muted">Hora</span><strong id="selectedTimeSummary">Sin seleccionar</strong></li>
         </ul>
+        <button class="btn full" type="button" id="confirmBooking" disabled>Confirmar cita</button>
+        <p id="quotaWarning" class="quota-warning hidden">Has alcanzado el maximo de 2 citas en los proximos 7 dias.</p>
         <div class="notice">
-          <strong>Privacidad</strong>
-          <p class="muted small">Solo el barbero puede ver la agenda completa. Aqui solo eliges tu horario disponible.</p>
+          <strong>Limite semanal</strong>
+          <p class="muted small">Puedes tener hasta 2 citas activas en los proximos 7 dias.</p>
+        </div>
+        <div class="notice push-notice">
+          <strong>Notificaciones en tu celular</strong>
+          <p class="muted small">Activa alertas gratis para recordatorios 24 h antes y confirmacion al reservar. En iPhone, agrega JMbarber a la pantalla de inicio.</p>
+          <button class="btn secondary full" type="button" id="enablePushBtn">Activar notificaciones</button>
+          <p id="pushStatus" class="muted small push-status"></p>
         </div>
       </aside>
     </section>
   </main>
 
+  <section id="dayModal" class="modal hidden" aria-modal="true" role="dialog">
+    <article class="modal-card modal-card-scroll">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">Horarios disponibles</p>
+          <h2 id="modalDate">Fecha</h2>
+          <p id="modalSubtitle" class="muted">Selecciona una hora libre para tu cita.</p>
+        </div>
+        <button id="closeModal" class="close" type="button" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="vipDayInfo" class="vip-day-info hidden"></div>
+        <div id="daySlots" class="slots modal-slots" aria-live="polite"></div>
+      </div>
+    </article>
+  </section>
+
+  <section id="rescheduleModal" class="modal hidden" aria-modal="true" role="dialog">
+    <article class="modal-card">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">Reagendar VIP</p>
+          <h2 id="rescheduleTitle">Cambiar cita fija</h2>
+          <p id="rescheduleSubtitle" class="muted">Solo aplica para este dia.</p>
+        </div>
+        <button id="closeRescheduleModal" class="close" type="button" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="rescheduleForm" class="form">
+          <label for="rescheduleDate">Nueva fecha
+            <input id="rescheduleDate" type="date" required>
+          </label>
+          <label for="rescheduleTime">Nueva hora
+            <select id="rescheduleTime" required></select>
+          </label>
+          <button class="btn full" type="submit">Guardar cambio solo para este dia</button>
+          <button class="btn secondary full" type="button" id="skipVipBtn">No puedo ir este dia</button>
+        </form>
+      </div>
+    </article>
+  </section>
+
+  <section id="aboutModal" class="modal hidden" aria-modal="true" role="dialog">
+    <article class="modal-card modal-card-scroll about-card">
+      <div class="modal-head about-head">
+        <div>
+          <p class="eyebrow">Sobre nosotros</p>
+          <h2>JMbarber Studio</h2>
+          <p class="muted">Barberia profesional enfocada en tecnica, detalle y una experiencia puntual para cada cliente.</p>
+        </div>
+        <button id="closeAboutModal" class="close" type="button" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body about-body">
+        <div class="about-profile">
+          <div>
+            <p class="eyebrow">Perfil profesional</p>
+            <h3>Precision, formacion y presencia.</h3>
+            <p class="muted">Soy un barbero profesional formado en corte clasico, degradados modernos, perfilado de barba, visagismo masculino y atencion personalizada. Cada servicio se trabaja con diagnostico previo, herramientas limpias y acabado cuidado para que salgas con un estilo que se vea bien hoy y siga tomando forma los dias siguientes.</p>
+          </div>
+          <div class="about-highlights" aria-label="Experiencia">
+            <span>Cortes clasicos</span>
+            <span>Fade avanzado</span>
+            <span>Barba y perfilado</span>
+            <span>Cursos profesionales</span>
+          </div>
+        </div>
+
+        <div class="about-carousel-wrap">
+          <div class="about-carousel-head">
+            <div>
+              <p class="eyebrow">Galeria</p>
+              <h3>Espacio para tus fotos</h3>
+            </div>
+            <div class="calendar-actions">
+              <button class="icon-btn" type="button" id="aboutPrev" aria-label="Foto anterior">&lt;</button>
+              <button class="icon-btn" type="button" id="aboutNext" aria-label="Foto siguiente">&gt;</button>
+            </div>
+          </div>
+          <div id="aboutCarousel" class="about-carousel" tabindex="0" aria-label="Carrusel de fotos">
+            <div class="about-slide"><span>Foto 01</span></div>
+            <div class="about-slide"><span>Foto 02</span></div>
+            <div class="about-slide"><span>Foto 03</span></div>
+            <div class="about-slide"><span>Foto 04</span></div>
+            <div class="about-slide"><span>Foto 05</span></div>
+            <div class="about-slide"><span>Foto 06</span></div>
+            <div class="about-slide"><span>Foto 07</span></div>
+            <div class="about-slide"><span>Foto 08</span></div>
+            <div class="about-slide"><span>Foto 09</span></div>
+            <div class="about-slide"><span>Foto 10</span></div>
+            <div class="about-slide"><span>Foto 11</span></div>
+            <div class="about-slide"><span>Foto 12</span></div>
+            <div class="about-slide"><span>Foto 13</span></div>
+            <div class="about-slide"><span>Foto 14</span></div>
+            <div class="about-slide"><span>Foto 15</span></div>
+            <div class="about-slide"><span>Foto 16</span></div>
+            <div class="about-slide"><span>Foto 17</span></div>
+            <div class="about-slide"><span>Foto 18</span></div>
+            <div class="about-slide"><span>Foto 19</span></div>
+            <div class="about-slide"><span>Foto 20</span></div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </section>
+
   <div id="toast" class="toast hidden" role="status"></div>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
+  <script src="studio-utils.js"></script>
+  <script src="push.js"></script>
+  <script src="notify.js"></script>
   <script src="booking.js"></script>
 </body>
 </html>

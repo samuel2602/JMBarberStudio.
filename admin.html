@@ -26,7 +26,7 @@
     <aside class="sidebar card">
       <p class="eyebrow">Administracion</p>
       <h1>Control diario</h1>
-      <p class="muted">Selecciona una fecha del calendario para abrir la pantalla completa con las citas de ese dia.</p>
+      <p class="muted">Selecciona una fecha del calendario para gestionar horas, bloqueos y citas.</p>
 
       <div class="metric">
         <span class="muted">Citas hoy</span>
@@ -41,8 +41,8 @@
         <strong id="pendingCount">0</strong>
       </div>
       <div class="metric">
-        <span class="muted">Horario</span>
-        <strong style="font-size: 24px;">7am-9pm</strong>
+        <span class="muted">Clientes VIP</span>
+        <strong id="vipCount" style="font-size: 24px;">0</strong>
       </div>
     </aside>
 
@@ -68,6 +68,17 @@
       <section class="section card">
         <div class="section-head">
           <div>
+            <p class="eyebrow">Clientes VIP</p>
+            <h2>Horarios fijos recurrentes</h2>
+          </div>
+          <button class="btn" type="button" id="openVipForm">Agregar VIP</button>
+        </div>
+        <div id="vipList" class="request-list"></div>
+      </section>
+
+      <section class="section card">
+        <div class="section-head">
+          <div>
             <p class="eyebrow">Clientes</p>
             <h2>Solicitudes de registro</h2>
           </div>
@@ -75,18 +86,33 @@
         </div>
         <div id="registrationRequests" class="request-list"></div>
       </section>
+
+      <section class="section card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Alertas</p>
+            <h2>Notificaciones en celular</h2>
+          </div>
+        </div>
+        <p class="muted small">Recibe aviso cuando un cliente reserve y recordatorios de citas. En iPhone, agrega el panel a la pantalla de inicio.</p>
+        <button class="btn full" type="button" id="enablePushBtn">Activar notificaciones</button>
+        <p id="pushStatus" class="muted small push-status"></p>
+      </section>
     </div>
   </main>
 
   <section id="dayModal" class="modal hidden" aria-modal="true" role="dialog">
-    <article class="modal-card">
+    <article class="modal-card modal-card-scroll">
       <div class="modal-head">
         <div>
           <p class="eyebrow">Agenda del dia</p>
           <h2 id="modalDate">Fecha</h2>
-          <p id="modalSubtitle" class="muted">Horario de 7:00 a.m. a 9:00 p.m.</p>
+          <p id="modalSubtitle" class="muted">Horario del dia</p>
         </div>
-        <button id="closeModal" class="close" type="button" aria-label="Cerrar">&times;</button>
+        <div class="modal-head-actions">
+          <button class="btn secondary" type="button" id="editScheduleBtn">Editar horario</button>
+          <button id="closeModal" class="close" type="button" aria-label="Cerrar">&times;</button>
+        </div>
       </div>
       <div class="modal-body">
         <div id="dayAppointments" class="timeline"></div>
@@ -94,9 +120,76 @@
     </article>
   </section>
 
+  <section id="scheduleModal" class="modal hidden" aria-modal="true" role="dialog">
+    <article class="modal-card modal-card-scroll">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">Horario personalizado</p>
+          <h2 id="scheduleModalDate">Fecha</h2>
+          <p class="muted">Marca las horas en las que trabajaras este dia.</p>
+        </div>
+        <button id="closeScheduleModal" class="close" type="button" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body">
+        <label class="day-off-toggle">
+          <input type="checkbox" id="dayOffToggle">
+          <span>No trabajare este dia (dia de descanso)</span>
+        </label>
+        <p id="scheduleEditorNote" class="muted small">Marca las horas en las que trabajaras este dia.</p>
+        <div id="scheduleHoursGrid" class="slots modal-slots"></div>
+        <button class="btn full" type="button" id="saveScheduleBtn">Guardar horario del dia</button>
+      </div>
+    </article>
+  </section>
+
+  <section id="vipModal" class="modal hidden" aria-modal="true" role="dialog">
+    <article class="modal-card">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">Cliente VIP</p>
+          <h2 id="vipModalTitle">Agregar VIP</h2>
+        </div>
+        <button id="closeVipModal" class="close" type="button" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="vipForm" class="form">
+          <input type="hidden" id="vipEditId">
+          <label for="vipClient">Cliente
+            <select id="vipClient" required></select>
+          </label>
+          <label for="vipDay">Dia de la semana
+            <select id="vipDay" required>
+              <option value="1">Lunes</option>
+              <option value="2">Martes</option>
+              <option value="3">Miercoles</option>
+              <option value="4">Jueves</option>
+              <option value="5">Viernes</option>
+              <option value="6">Sabado</option>
+              <option value="0">Domingo</option>
+            </select>
+          </label>
+          <label for="vipTime">Hora fija
+            <select id="vipTime" required></select>
+          </label>
+          <label for="vipFrequency">Frecuencia
+            <select id="vipFrequency" required>
+              <option value="weekly">Cada semana</option>
+              <option value="biweekly">Cada 15 dias</option>
+            </select>
+          </label>
+          <button class="btn full" type="submit">Guardar VIP</button>
+        </form>
+      </div>
+    </article>
+  </section>
+
   <div id="toast" class="toast hidden" role="status"></div>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
+  <script src="studio-utils.js"></script>
+  <script src="push.js"></script>
+  <script src="notify.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>

@@ -1,4 +1,7 @@
-const BARBER_DEFAULT = window.BARBER_CREDENTIALS || {};
+const BARBER_DEFAULT = {
+  phone: "3014300748",
+  password: "2602"
+};
 
 const loginForm = document.getElementById("loginForm");
 const registerForm = document.getElementById("registerForm");
@@ -62,7 +65,8 @@ function goToBooking(user) {
     id: user.id,
     name: user.name,
     phone: user.phone,
-    role: "client"
+    role: "client",
+    status: user.status
   }));
   window.location.href = "booking.html";
 }
@@ -89,21 +93,9 @@ if (loginForm) {
     const phone = normalizePhone(document.getElementById("phone").value);
     const password = document.getElementById("password").value.trim();
 
-    const barberPhone = normalizePhone(BARBER_DEFAULT.phone || "");
-
-    if (barberPhone && phone === barberPhone) {
-      if (!BARBER_DEFAULT.password) {
-        showMessage("El acceso del barbero no esta configurado. Revisa supabase-config.js.");
-        return;
-      }
-
-      if (password === BARBER_DEFAULT.password) {
-        localStorage.setItem("currentUser", JSON.stringify({ phone, role: "barber" }));
-        window.location.href = "admin.html";
-        return;
-      }
-
-      showMessage("La contrasena del barbero no coincide.");
+    if (phone === BARBER_DEFAULT.phone && password === BARBER_DEFAULT.password) {
+      localStorage.setItem("currentUser", JSON.stringify({ phone, role: "barber" }));
+      window.location.href = "admin.html";
       return;
     }
 
@@ -121,11 +113,6 @@ if (loginForm) {
 
       if (user.password_hash !== passwordHash) {
         showMessage("La contrasena no coincide con ese celular.");
-        return;
-      }
-
-      if (user.status === "pending") {
-        showMessage("Tu registro esta pendiente. El barbero debe aprobarte antes de agendar.");
         return;
       }
 
@@ -155,7 +142,7 @@ if (registerForm) {
       return;
     }
 
-    if (BARBER_DEFAULT.phone && phone === normalizePhone(BARBER_DEFAULT.phone)) {
+    if (phone === BARBER_DEFAULT.phone) {
       showMessage("Ese celular esta reservado para el barbero.");
       return;
     }
@@ -168,7 +155,7 @@ if (registerForm) {
         document.getElementById("phone").value = phone;
 
         if (existingUser.status === "pending") {
-          showMessage("Ese celular ya tiene un registro pendiente. Espera la aprobacion del barbero.");
+          showMessage("Ese celular ya esta registrado. Entra con tu contrasena para continuar.");
           return;
         }
 
@@ -182,19 +169,21 @@ if (registerForm) {
       }
 
       const passwordHash = await hashPassword(password);
-      const { error } = await db.from("client_users").insert({
-        name,
-        phone,
-        password_hash: passwordHash,
-        status: "pending"
-      });
+      const { data: newUser, error } = await db
+        .from("client_users")
+        .insert({
+          name,
+          phone,
+          password_hash: passwordHash,
+          status: "pending"
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
       registerForm.reset();
-      setActiveTab("login");
-      document.getElementById("phone").value = phone;
-      showMessage("Registro enviado. El barbero debe aprobarte antes de que puedas agendar.", "success");
+      goToBooking(newUser);
     } catch (error) {
       console.error(error);
       showMessage(databaseErrorMessage(error, "No se pudo guardar el registro. Revisa la tabla client_users en Supabase."));
